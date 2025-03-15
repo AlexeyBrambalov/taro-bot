@@ -1,10 +1,9 @@
 import os
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Application, CommandHandler, CallbackContext
 from dotenv import load_dotenv
 import psycopg2
-import random
 
 # Load environment variables
 load_dotenv()
@@ -23,11 +22,11 @@ def get_db_connection():
     return conn
 
 # Command to start the bot
-def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Hello! I am your Tarot bot.')
+async def start(update: Update, context: CallbackContext) -> None:
+    await update.message.reply_text('Hello! I am your Tarot bot.')
 
 # Command to fetch a random Tarot card from the database
-def tarot(update: Update, context: CallbackContext) -> None:
+async def tarot(update: Update, context: CallbackContext) -> None:
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -35,12 +34,11 @@ def tarot(update: Update, context: CallbackContext) -> None:
     cursor.execute("SELECT name, meaning FROM cards ORDER BY RANDOM() LIMIT 1")
     card = cursor.fetchone()
 
-
     if card:
         name, meaning = card
-        update.message.reply_text(f"Today's card: {name}\nMeaning: {meaning}")
+        await update.message.reply_text(f"Today's card: {name}\nMeaning: {meaning}")
     else:
-        update.message.reply_text("No cards found in the database!")
+        await update.message.reply_text("No cards found in the database!")
 
     # Close the database connection
     cursor.close()
@@ -48,18 +46,15 @@ def tarot(update: Update, context: CallbackContext) -> None:
 
 # Main function to run the bot
 def main():
-    updater = Updater(TELEGRAM_BOT_TOKEN)
-
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
+    # Create the Application instance
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
     # Add command handlers
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("tarot", tarot))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("tarot", tarot))
 
     # Start the bot
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
