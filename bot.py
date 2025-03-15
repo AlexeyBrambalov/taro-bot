@@ -1,10 +1,10 @@
 import os
 import logging
-import random
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from dotenv import load_dotenv
 import psycopg2
+import random
 
 # Load environment variables
 load_dotenv()
@@ -28,20 +28,19 @@ def start(update: Update, context: CallbackContext) -> None:
 
 # Command to fetch a random Tarot card from the database
 def tarot(update: Update, context: CallbackContext) -> None:
-    # Connect to the database
     conn = get_db_connection()
     cursor = conn.cursor()
-
-    # Query to fetch a random card
+    
+    # Fetch a random card from the database
     cursor.execute("SELECT name, meaning FROM cards ORDER BY RANDOM() LIMIT 1")
     card = cursor.fetchone()
 
-    # If a card is found, send its name and meaning
+
     if card:
-        card_name, card_meaning = card
-        update.message.reply_text(f"Today's card: {card_name}\nMeaning: {card_meaning}")
+        name, meaning = card
+        update.message.reply_text(f"Today's card: {name}\nMeaning: {meaning}")
     else:
-        update.message.reply_text("Sorry, there are no cards in the database.")
+        update.message.reply_text("No cards found in the database!")
 
     # Close the database connection
     cursor.close()
