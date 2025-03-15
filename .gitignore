@@ -1,0 +1,40 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+*.so
+*.egg
+*.egg-info
+dist/
+build/
+eggs/
+parts/
+sdist/
+var/
+*.bak
+
+# Virtual Environment
+venv/
+.env/
+
+# Logs
+*.log
+
+# PostgreSQL and Supabase specific
+*.db
+*.sqlite3
+
+# Environment Variables
+.env
+
+# IDEs and Editors (e.g., VS Code, PyCharm)
+.vscode/
+.idea/
+*.iml
+
+# MacOS specific
+.DS_Store
+
+# Heroku and Railway specific
+*.slugignore
