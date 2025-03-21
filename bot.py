@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL2")
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -148,7 +148,7 @@ async def tarot(update: Update, context: CallbackContext) -> None:
     first_name = update.message.from_user.first_name
     last_name = update.message.from_user.last_name
     add_user_to_db(user_id, username, first_name, last_name)
-    
+
     card = random.choice(tarot_cards)
     caption = f"**{card['name']}**\n\n*Meaning:* {card['meaning']}\n*Example:* {card['example']}"
     try:
