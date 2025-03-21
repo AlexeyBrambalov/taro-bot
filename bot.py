@@ -1,14 +1,17 @@
 import os
 import logging
+import random
+import psycopg2
+from psycopg2 import sql
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 from dotenv import load_dotenv
-import random
 
 # Load environment variables
 load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -105,9 +108,33 @@ tarot_cards = [
     # ("10 of Wands", "Embodies burden and responsibility, advising you to delegate tasks and seek support.")
 ]
 
+def add_user_to_db(user_id, username, first_name, last_name):
+    try:
+        connection = psycopg2.connect(DATABASE_URL)
+        cursor = connection.cursor()
+        insert_query = """
+            INSERT INTO users (user_id, username, first_name, last_name)
+            OVERRIDING SYSTEM VALUE
+            VALUES (%s, %s, %s, %s);
+        """
+        cursor.execute(insert_query, (user_id, username, first_name, last_name))
+        connection.commit()
+        cursor.close()
+        connection.close()
+        logger.info(f"User {username} added to the database.")
+    except Exception as e:
+        logger.error(f"Error adding user to database: {e}")
+
 # Command to start the bot
 async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text('Hello! I am your Tarot bot.')
+    user = update.effective_user
+    await update.message.reply_text(f'Hello, {user.first_name}! I am your Tarot bot.')
+    # Add user to the database
+    user_id = update.message.from_user.id
+    username = update.message.from_user.username
+    first_name = update.message.from_user.first_name
+    last_name = update.message.from_user.last_name
+    add_user_to_db(user_id, username, first_name, last_name)
 
 # Command to fetch a random Tarot card
 async def tarot(update: Update, context: CallbackContext) -> None:
