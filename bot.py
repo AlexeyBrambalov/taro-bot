@@ -113,9 +113,14 @@ def add_user_to_db(user_id, username, first_name, last_name):
         connection = psycopg2.connect(DATABASE_URL)
         cursor = connection.cursor()
         insert_query = """
-            INSERT INTO users (user_id, username, first_name, last_name)
-            OVERRIDING SYSTEM VALUE
-            VALUES (%s, %s, %s, %s);
+            INSERT INTO users (user_id, username, first_name, last_name, start_date, last_visited)
+            VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT (user_id)
+            DO UPDATE SET
+                username = EXCLUDED.username,
+                first_name = EXCLUDED.first_name,
+                last_name = EXCLUDED.last_name,
+                last_visited = CURRENT_TIMESTAMP;
         """
         cursor.execute(insert_query, (user_id, username, first_name, last_name))
         connection.commit()
@@ -138,6 +143,12 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 # Command to fetch a random Tarot card
 async def tarot(update: Update, context: CallbackContext) -> None:
+    user_id = update.message.from_user.id
+    username = update.message.from_user.username
+    first_name = update.message.from_user.first_name
+    last_name = update.message.from_user.last_name
+    add_user_to_db(user_id, username, first_name, last_name)
+    
     card = random.choice(tarot_cards)
     caption = f"**{card['name']}**\n\n*Meaning:* {card['meaning']}\n*Example:* {card['example']}"
     try:
