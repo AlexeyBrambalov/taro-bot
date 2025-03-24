@@ -6,12 +6,17 @@ from psycopg2 import sql
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 from dotenv import load_dotenv
+from google import genai
 
 # Load environment variables
 load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL2")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Configure Gemini AI client
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -143,12 +148,6 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 # Command to fetch a random Tarot card
 async def tarot(update: Update, context: CallbackContext) -> None:
-    user_id = update.message.from_user.id
-    username = update.message.from_user.username
-    first_name = update.message.from_user.first_name
-    last_name = update.message.from_user.last_name
-    add_user_to_db(user_id, username, first_name, last_name)
-
     card = random.choice(tarot_cards)
     caption = f"**{card['name']}**\n\n*Meaning:* {card['meaning']}\n*Example:* {card['example']}"
     try:
@@ -156,6 +155,22 @@ async def tarot(update: Update, context: CallbackContext) -> None:
             await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_file, caption=caption, parse_mode='Markdown')
     except FileNotFoundError:
         await update.message.reply_text(f"Image for {card['name']} not found. Please check the image path.")
+
+    # Generate AI insight
+    prompt = f"The card drawn is {card['name']}. Generate prediction for this card."
+    response = client.models.generate_content(
+    model="gemini-2.0-flash",
+    contents=prompt,
+    )
+    ai_insight = response.text
+
+    await update.message.reply_text(f"AI prediction: {ai_insight}")
+
+    user_id = update.message.from_user.id
+    username = update.message.from_user.username
+    first_name = update.message.from_user.first_name
+    last_name = update.message.from_user.last_name
+    add_user_to_db(user_id, username, first_name, last_name)
 
 # Main function to run the bot
 def main():
