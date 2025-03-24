@@ -6,7 +6,7 @@ from psycopg2 import sql
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 from dotenv import load_dotenv
-from google import genai
+import google.generativeai as genai 
 
 # Load environment variables
 load_dotenv()
@@ -16,7 +16,7 @@ DATABASE_URL = os.getenv("DATABASE_URL2")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Configure Gemini AI client
-client = genai.Client(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY) 
 
 # Set up logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -158,10 +158,8 @@ async def tarot(update: Update, context: CallbackContext) -> None:
 
     # Generate AI insight
     prompt = f"The card drawn is {card['name']}. Generate prediction for this card."
-    response = client.models.generate_content(
-    model="gemini-2.0-flash",
-    contents=prompt,
-    )
+    model = genai.GenerativeModel('gemini-1.5-flash-002')  
+    response = model.generate_content(prompt)   
     ai_insight = response.text
 
     await update.message.reply_text(f"AI prediction: {ai_insight}")
