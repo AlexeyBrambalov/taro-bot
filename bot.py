@@ -7,6 +7,7 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 from dotenv import load_dotenv
 import google.generativeai as genai 
+from telegram.constants import ParseMode
 
 # Load environment variables
 load_dotenv()
@@ -88,21 +89,41 @@ async def start(update: Update, context: CallbackContext) -> None:
 # Command to fetch a random Tarot card
 async def tarot(update: Update, context: CallbackContext) -> None:
     card = random.choice(tarot_cards)
-    caption = f"**{card['name']}**\n\n{card['meaning']}"
+    caption = f"*{card['name']}*\n\n{card['meaning']}"
     try:
         with open(card['image_path'], 'rb') as image_file:
-            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_file, caption=caption, parse_mode='Markdown')
+            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_file, caption=caption, parse_mode=ParseMode.MARKDOWN)
     except FileNotFoundError:
         await update.message.reply_text(f"Image for {card['name']} not found. Please check the image path.")
 
     # Generate AI insight
-    prompt = f"Предскажи будущее для {update.message.from_user.first_name} используя карту Таро {card['name']}. Опиши это тремя короткими, яркими предложениями на русском языке."
+    prompt = f"""Напиши толкование карты Таро *{card['name']}* в следующем стиле:
 
-    model = genai.GenerativeModel('gemini-1.5-flash-002')  
+        *{card['name']}* – [Краткое описание карты, её основное значение]
+
+        *Символика и толкование:*
+        [Подробное описание карты, её символика и значение]
+
+        *Значение в различных аспектах жизни:*
+        *Любовь:* [Толкование карты в любовных вопросах]
+        *Работа:* [Значение карты в сфере карьеры]
+        *Финансы:* [Как карта влияет на материальную сторону жизни]
+
+        *Совет карты:*
+        [Практический совет от карты]
+
+        *Предупреждение:*
+        [Возможные негативные аспекты или предостережения]
+
+        Используй насыщенный, образный язык, чтобы передать энергию и смысл карты.
+        Включай метафоры и сравнения, чтобы сделать толкование более понятным и запоминающимся.
+        """
+
+    model = genai.GenerativeModel('gemini-2.0-flash-001')  
     response = model.generate_content(prompt)   
     ai_insight = response.text
 
-    await update.message.reply_text(f"Предсказание: {ai_insight}")
+    await update.message.reply_text(text=f"{ai_insight}", parse_mode=ParseMode.MARKDOWN)
 
     user_id = update.message.from_user.id
     username = update.message.from_user.username
