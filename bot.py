@@ -98,7 +98,7 @@ async def name_input(update: Update, context: CallbackContext) -> None:
 
 async def send_ai_insight(update: Update, card, name=None, gender=None):
     """Generates and sends an AI-based Tarot interpretation."""
-    prompt = f"""Напиши толкование карты Таро *{card['name']}* {'для ' + gender + ' по имени ' + name if name else ''}в следующем стиле:
+    prompt = f"""Напиши толкование карты Таро *{card['name']}* {'для ' + gender + ' по имени ' + name if name else ''}в следующем стиле (используется колода *Heaven and Earth*):
     🔮 *{card['name']}* – [Краткое описание карты, её основное значение]
 
     ✨ *Символика и толкование:*
