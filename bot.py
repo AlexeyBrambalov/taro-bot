@@ -2,7 +2,6 @@ import os
 import logging
 import random
 import psycopg2
-from psycopg2 import sql
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.ext import (
@@ -14,6 +13,8 @@ import google.generativeai as genai
 from tarot_cards import tarot_cards
 from ai_prompt import generate_tarot_prompt
 from horoscope import register_horoscope_handlers
+from start import start
+from db import add_user_to_db, get_user_from_db
 
 # Load environment variables
 load_dotenv()
@@ -30,78 +31,6 @@ logger = logging.getLogger(__name__)
 
 # ConversationHandler states
 GENDER, NAME = range(2)
-
-# Database functions
-def add_user_to_db(user_id, username, first_name, last_name, name=None, gender=None):
-    try:
-        with psycopg2.connect(DATABASE_URL) as connection:
-            with connection.cursor() as cursor:
-                query = """
-                    INSERT INTO users (user_id, username, first_name, last_name, name, gender, start_date, last_visited)
-                    VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                    ON CONFLICT (user_id)
-                    DO UPDATE SET 
-                        username = EXCLUDED.username, 
-                        first_name = EXCLUDED.first_name,
-                        last_name = EXCLUDED.last_name,
-                        name = COALESCE(EXCLUDED.name, users.name),
-                        gender = COALESCE(EXCLUDED.gender, users.gender),
-                        last_visited = CURRENT_TIMESTAMP;
-                """
-                cursor.execute(query, (user_id, username, first_name, last_name, name, gender))
-                logger.info(f"User {username} added/updated in the database.")
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-
-def get_user_from_db(user_id):
-    try:
-        with psycopg2.connect(DATABASE_URL) as connection:
-            with connection.cursor() as cursor:
-                cursor.execute("SELECT name, gender FROM users WHERE user_id = %s", (user_id,))
-                return cursor.fetchone()
-    except Exception as e:
-        logger.error(f"Database error: {e}")
-        return None
-
-# /start command
-async def start(update: Update, context: CallbackContext) -> None:
-    user = update.effective_user
-
-    welcome_text = f"""
-    ✨ Добро пожаловать, {user.first_name}! ✨
-
-    Я - ваш персональный бот-предсказатель с тремя основными функциями:
-
-    🃏 Обычное гадание на картах Таро (/tarot)
-    - Выбираю случайную карту из колоды
-    - Даю её классическое толкование
-    - Добавляю AI-интерпретацию
-
-    🧙 Персональное гадание Таро (/personal_tarot)
-    - Сохраняю ваше имя и пол для персонализации
-    - Анализирую карту с учётом ваших особенностей
-    - Даю более точное и индивидуальное предсказание
-
-    🌌 Гороскоп (/horoscope [знак зодиака])
-    - Составляю ежедневный астропрогноз
-    - Анализирую влияние планет
-    - Даю практические советы на день
-
-    Выберите одну из функций ниже или используйте команды:
-    """
-    keyboard = [["/tarot", "/personal_tarot", "/horoscope"]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
-    
-    await update.message.reply_text(
-        welcome_text,
-        reply_markup=reply_markup,
-    )
-    
-    user_id = user.id
-    username = user.username
-    first_name = user.first_name
-    last_name = user.last_name
-    add_user_to_db(user_id, username, first_name, last_name)
 
 # /tarot command
 async def tarot(update: Update, context: CallbackContext, name=None, gender=None) -> None:
