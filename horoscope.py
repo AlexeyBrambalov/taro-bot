@@ -4,6 +4,7 @@ from telegram.constants import ParseMode
 from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler
 import google.generativeai as genai
 from ai_prompt import generate_horoscope_prompt
+from utils import sanitize_markdown
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,8 @@ async def zodiac_selected(update: Update, context: CallbackContext) -> None:
         model = genai.GenerativeModel('gemini-2.0-flash-001')
         response = model.generate_content(prompt)
         text_response = response.text.lstrip("#").strip()
-        await query.message.reply_text(f"🌟 Гороскоп для *{sign}*:\n\n{text_response}", parse_mode=ParseMode.MARKDOWN)
+        safe_text = sanitize_markdown(text_response)
+        await query.message.reply_text(f"🌟 Гороскоп для *{sign}*:\n\n{safe_text}", parse_mode=ParseMode.MARKDOWN)
     except Exception as e:
         logger.error(f"AI generation error: {e}")
         await query.message.reply_text("Ошибка при генерации гороскопа.")

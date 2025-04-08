@@ -1,7 +1,7 @@
 import os
 import logging
 import random
-import psycopg2
+import re
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from telegram.ext import (
@@ -15,6 +15,7 @@ from ai_prompt import generate_tarot_prompt
 from horoscope import register_horoscope_handlers
 from start import start
 from db import add_user_to_db, get_user_from_db
+from utils import sanitize_markdown
 
 # Load environment variables
 load_dotenv()
@@ -55,8 +56,9 @@ async def send_ai_insight(update: Update, card, name=None, gender=None):
     try:
         model = genai.GenerativeModel('gemini-2.0-flash-001')
         response = model.generate_content(prompt)
-        text_response = response.text.lstrip("#").strip()
-        await update.message.reply_text(text_response, parse_mode=ParseMode.MARKDOWN)
+        raw_text = response.text.lstrip("#").strip()
+        safe_text = sanitize_markdown(raw_text)
+        await update.message.reply_text(safe_text, parse_mode=ParseMode.MARKDOWN)
     except Exception as e:
         logger.error(f"AI generation error: {e}")
         await update.message.reply_text("Ошибка при генерации AI-интерпретации.")

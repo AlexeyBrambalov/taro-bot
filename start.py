@@ -28,7 +28,13 @@ async def start(update: Update, context: CallbackContext) -> None:
     Выберите одну из функций ниже или используйте команды:
     """
     keyboard = [["/tarot", "/personal_tarot", "/horoscope"]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(
+        keyboard,
+        resize_keyboard=True,
+        one_time_keyboard=False, 
+        selective=True,
+        input_field_placeholder="Выберите команду ниже 👇"
+    )
 
     await update.message.reply_text(welcome_text, reply_markup=reply_markup)
 
