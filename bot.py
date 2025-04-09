@@ -37,7 +37,9 @@ GENDER, NAME = range(2)
 async def tarot(update: Update, context: CallbackContext, name=None, gender=None) -> None:
     random.shuffle(tarot_cards)
     card = random.choice(tarot_cards)
-    caption = f"{name or 'Ваша'} карта: *{card['name']}*\n\n{card['meaning']}\n\n⏳ Скоро появится предсказание по вашей карте..."
+    category = card["category"]
+    
+    caption = f"{name or 'Ваша'} карта: *{card['name']}*\n\nКатегория: *{category}*\n\n{card['meaning']}\n\n⏳ Скоро появится предсказание по вашей карте..."
 
     try:
         with open(card['image_path'], 'rb') as image_file:
