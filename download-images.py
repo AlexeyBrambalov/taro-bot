@@ -22,16 +22,16 @@ class RenamingImageDownloader(ImageDownloader):
 
 # Tarot card search queries and desired filenames
 cards = {
-    "The Empress": "the-empress",
-    "The Magician": "the-magician",
-    "The High Priestess": "the-high-priestess",
-    "The Lovers": "the-lovers",
-    "Temperance": "temperance",
-    "Seven of Swords": "seven-of-swords",
-    "Five of Cups": "five-of-cups",
+    "Ace of Cups": "ace-of-cups",
+    "Two of Wands": "two-of-wands",
     "Three of Pentacles": "three-of-pentacles",
-    "Nine of Wands": "nine-of-wands",
-    "Knight of Cups": "knight-of-cups"
+    "Four of Swords": "four-of-swords",
+    "Five of Cups": "five-of-cups",
+    "Six of Pentacles": "six-of-pentacles",
+    "Seven of Wands": "seven-of-wands",
+    "Eight of Swords": "eight-of-swords",
+    "Nine of Pentacles": "nine-of-pentacles",
+    "Ten of Wands": "ten-of-wands"
 }
 
 deck_name = "Heaven and Earth Tarot"
