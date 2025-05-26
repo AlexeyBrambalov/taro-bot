@@ -176,7 +176,7 @@ def main():
 
     application.job_queue.run_daily(
         callback=daily_tarot_job,
-        time=time(hour=9, minute=0),  # 9:00 AM UTC
+        time=time(hour=15, minute=0),
     )
 
     # Start polling
