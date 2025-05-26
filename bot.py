@@ -1,12 +1,16 @@
 import os
 import logging
 import random
-import re
 from dotenv import load_dotenv
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
-    Application, CommandHandler, CallbackContext, CallbackQueryHandler,
-    MessageHandler, ConversationHandler, filters
+    Application,
+    CommandHandler,
+    CallbackContext,
+    CallbackQueryHandler,
+    MessageHandler,
+    ConversationHandler,
+    filters,
 )
 from telegram.constants import ParseMode
 import google.generativeai as genai
@@ -16,6 +20,7 @@ from horoscope import register_horoscope_handlers
 from start import start
 from db import add_user_to_db, get_user_from_db
 from utils import sanitize_markdown
+from datetime import time
 
 # Load environment variables
 load_dotenv()
@@ -27,23 +32,34 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
 # Set up logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
 # ConversationHandler states
 GENDER, NAME = range(2)
 
+
 # /tarot command
-async def tarot(update: Update, context: CallbackContext, name=None, gender=None) -> None:
+async def tarot(
+    update: Update, context: CallbackContext, name=None, gender=None
+) -> None:
+    print("sss", update.effective_chat.id)
     random.shuffle(tarot_cards)
     card = random.choice(tarot_cards)
     category = card["category"]
-    
+
     caption = f"{name or 'Ваша'} карта: *{card['name']}*\n\nКатегория: *{category}*\n\n{card['meaning']}\n\n⏳ Скоро появится предсказание по вашей карте..."
 
     try:
-        with open(card['image_path'], 'rb') as image_file:
-            await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_file, caption=caption, parse_mode=ParseMode.MARKDOWN)
+        with open(card["image_path"], "rb") as image_file:
+            await context.bot.send_photo(
+                chat_id=update.effective_chat.id,
+                photo=image_file,
+                caption=caption,
+                parse_mode=ParseMode.MARKDOWN,
+            )
     except FileNotFoundError:
         await update.message.reply_text(f"Изображение карты {card['name']} не найдено.")
 
@@ -52,11 +68,42 @@ async def tarot(update: Update, context: CallbackContext, name=None, gender=None
     user = update.message.from_user
     add_user_to_db(user.id, user.username, user.first_name, user.last_name)
 
+
+async def daily_tarot_job(context: CallbackContext):
+    chat_id = os.getenv("DAILY_TAROT_CHAT_ID")  # Set this in your .env file
+    if not chat_id:
+        logger.warning("DAILY_TAROT_CHAT_ID not set.")
+        return
+
+    # Simulate an Update object with minimal info
+    class FakeUpdate:
+        effective_chat = type("Chat", (), {"id": int(chat_id)})
+        message = type(
+            "Message",
+            (),
+            {
+                "from_user": type(
+                    "User",
+                    (),
+                    {
+                        "id": int(chat_id),
+                        "username": None,
+                        "first_name": None,
+                        "last_name": None,
+                    },
+                )(),
+                "reply_text": lambda self, *args, **kwargs: None,
+            },
+        )()
+
+    await tarot(FakeUpdate(), context)
+
+
 # AI interpretation
 async def send_ai_insight(update: Update, card, name=None, gender=None):
-    prompt = generate_tarot_prompt(card['name'], name, gender)
+    prompt = generate_tarot_prompt(card["name"], name, gender)
     try:
-        model = genai.GenerativeModel('gemini-2.0-flash-001')
+        model = genai.GenerativeModel("gemini-2.0-flash-001")
         response = model.generate_content(prompt)
         raw_text = response.text.lstrip("#").strip()
         safe_text = sanitize_markdown(raw_text)
@@ -64,6 +111,7 @@ async def send_ai_insight(update: Update, card, name=None, gender=None):
     except Exception as e:
         logger.error(f"AI generation error: {e}")
         await update.message.reply_text("Ошибка при генерации AI-интерпретации.")
+
 
 # PERSONAL TAROT FLOW
 async def personal_tarot_start(update: Update, context: CallbackContext) -> int:
@@ -73,27 +121,36 @@ async def personal_tarot_start(update: Update, context: CallbackContext) -> int:
         return ConversationHandler.END
 
     keyboard = [
-        [InlineKeyboardButton("Мужчина", callback_data='male'),
-         InlineKeyboardButton("Женщина", callback_data='female')]
+        [
+            InlineKeyboardButton("Мужчина", callback_data="male"),
+            InlineKeyboardButton("Женщина", callback_data="female"),
+        ]
     ]
-    await update.message.reply_text("Выберите ваш пол:", reply_markup=InlineKeyboardMarkup(keyboard))
+    await update.message.reply_text(
+        "Выберите ваш пол:", reply_markup=InlineKeyboardMarkup(keyboard)
+    )
     return GENDER
+
 
 async def gender_choice(update: Update, context: CallbackContext) -> int:
     query = update.callback_query
     await query.answer()
-    context.user_data['gender'] = 'Мужчина' if query.data == 'male' else 'Женщина'
+    context.user_data["gender"] = "Мужчина" if query.data == "male" else "Женщина"
     await query.message.reply_text("Введите ваше имя:")
     return NAME
 
+
 async def name_input(update: Update, context: CallbackContext) -> int:
     name = update.message.text
-    gender = context.user_data.get('gender')
+    gender = context.user_data.get("gender")
     user = update.message.from_user
 
-    add_user_to_db(user.id, user.username, user.first_name, user.last_name, name, gender)
+    add_user_to_db(
+        user.id, user.username, user.first_name, user.last_name, name, gender
+    )
     await tarot(update, context, name, gender)
     return ConversationHandler.END
+
 
 # Main bot setup
 def main():
@@ -117,8 +174,14 @@ def main():
     # Horoscope handlers (from horoscope.py)
     register_horoscope_handlers(application)
 
+    application.job_queue.run_daily(
+        callback=daily_tarot_job,
+        time=time(hour=9, minute=0),  # 9:00 AM UTC
+    )
+
     # Start polling
     application.run_polling()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
