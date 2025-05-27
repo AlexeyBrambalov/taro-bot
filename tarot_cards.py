@@ -341,4 +341,46 @@ tarot_cards = [
         "meaning": "Щедрость, баланс между отдачей и получением.",
         "image_path": "images/material-success.jpg",
     },
+    {
+        "name": "Девятка Жезлов (Nine of Wands – Established Strength)",
+        "category": "Масть Жезлов",
+        "meaning": "Настойчивость и сила воли в преодолении трудностей.",
+        "image_path": "images/established-strength.jpg",
+    },
+    {
+        "name": "Сила (Strength – Great Strength)",
+        "category": "Старшие Арканы",
+        "meaning": "Внутренняя сила, спокойствие и уверенность в себе.",
+        "image_path": "images/great-strength.jpg",
+    },
+    {
+        "name": "Двойка Пентаклей (Two of Pentacles – Harmonious Change)",
+        "category": "Масть Пентаклей",
+        "meaning": "Баланс и адаптация в изменяющихся обстоятельствах.",
+        "image_path": "images/harmonious-change.jpg",
+    },
+    {
+        "name": "Пятёрка Жезлов (Five of Wands – Strife)",
+        "category": "Масть Жезлов",
+        "meaning": "Конфликты и соперничество, ведущие к росту.",
+        "image_path": "images/strife.jpg",
+    },
+    {
+        "name": "Умеренность (Temperance)",
+        "category": "Старшие Арканы",
+        "meaning": "Гармония, умеренность и целеустремлённость.",
+        "image_path": "images/temperance.jpg",
+    },
+    {
+        "name": "Семёрка Жезлов (Seven of Wands – Valour)",
+        "category": "Масть Жезлов",
+        "meaning": "Смелость и защита своих позиций.",
+        "image_path": "images/valour.jpg",
+    },
+    {
+        "name": "Шестёрка Жезлов (Six of Wands – Victory)",
+        "category": "Масть Жезлов",
+        "meaning": "Победа, признание и успех после усилий.",
+        "image_path": "images/victory.jpg",
+    },
 ]

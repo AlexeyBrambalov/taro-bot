@@ -2,7 +2,8 @@ import os
 import logging
 import random
 from dotenv import load_dotenv
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from types import SimpleNamespace
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Chat, User
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -28,6 +29,12 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL2")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+if not TELEGRAM_BOT_TOKEN:
+    raise EnvironmentError("TELEGRAM_BOT_TOKEN is not set in .env")
+
+if not GEMINI_API_KEY:
+    raise EnvironmentError("GEMINI_API_KEY is not set in .env")
+
 # Configure Gemini AI client
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -45,7 +52,6 @@ GENDER, NAME = range(2)
 async def tarot(
     update: Update, context: CallbackContext, name=None, gender=None
 ) -> None:
-    print("sss", update.effective_chat.id)
     random.shuffle(tarot_cards)
     card = random.choice(tarot_cards)
     category = card["category"]
@@ -61,56 +67,76 @@ async def tarot(
                 parse_mode=ParseMode.MARKDOWN,
             )
     except FileNotFoundError:
-        await update.message.reply_text(f"Изображение карты {card['name']} не найдено.")
+        if update.message:
+            await update.message.reply_text(
+                f"Изображение карты {card['name']} не найдено."
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"Изображение карты {card['name']} не найдено.",
+            )
 
-    await send_ai_insight(update, card, name, gender)
+    await send_ai_insight(update, context, card, name, gender)
 
-    user = update.message.from_user
-    add_user_to_db(user.id, user.username, user.first_name, user.last_name)
+    if update.message and update.message.from_user:
+        user = update.message.from_user
+        add_user_to_db(user.id, user.username, user.first_name, user.last_name)
 
 
 async def daily_tarot_job(context: CallbackContext):
-    chat_id = os.getenv("DAILY_TAROT_CHAT_ID")  # Set this in your .env file
+    chat_id = os.getenv("DAILY_TAROT_CHAT_ID")
     if not chat_id:
         logger.warning("DAILY_TAROT_CHAT_ID not set.")
         return
 
-    # Simulate an Update object with minimal info
-    class FakeUpdate:
-        effective_chat = type("Chat", (), {"id": int(chat_id)})
-        message = type(
-            "Message",
-            (),
-            {
-                "from_user": type(
-                    "User",
-                    (),
-                    {
-                        "id": int(chat_id),
-                        "username": None,
-                        "first_name": None,
-                        "last_name": None,
-                    },
-                )(),
-                "reply_text": lambda self, *args, **kwargs: None,
-            },
-        )()
+    chat_id = int(chat_id)
 
-    await tarot(FakeUpdate(), context)
+    # Fake Message and Update for job queue
+    class FakeMessage:
+        from_user = User(id=chat_id, first_name="Daily", is_bot=False)
+        chat = Chat(id=chat_id, type="private")
+
+        async def reply_text(self, text, **kwargs):
+            await context.bot.send_message(chat_id=chat_id, text=text, **kwargs)
+
+    fake_update = SimpleNamespace(
+        message=FakeMessage(), effective_chat=Chat(id=chat_id, type="private")
+    )
+
+    await tarot(fake_update, context)
 
 
 # AI interpretation
-async def send_ai_insight(update: Update, card, name=None, gender=None):
+async def send_ai_insight(
+    update: Update, context: CallbackContext, card, name=None, gender=None
+):
     prompt = generate_tarot_prompt(card["name"], name, gender)
     try:
         model = genai.GenerativeModel("gemini-2.0-flash-001")
-        response = model.generate_content(prompt)
+        response = await model.generate_content_async(prompt)
         raw_text = response.text.lstrip("#").strip()
         safe_text = sanitize_markdown(raw_text)
-        await update.message.reply_text(safe_text, parse_mode=ParseMode.MARKDOWN)
+
+        if update.message:
+            await update.message.reply_text(safe_text, parse_mode=ParseMode.MARKDOWN)
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=safe_text,
+                parse_mode=ParseMode.MARKDOWN,
+            )
+
     except Exception as e:
         logger.error(f"AI generation error: {e}")
-        await update.message.reply_text("Ошибка при генерации AI-интерпретации.")
+        error_text = "Ошибка при генерации AI-интерпретации."
+
+        if update.message:
+            await update.message.reply_text(error_text)
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=error_text
+            )
 
 
 # PERSONAL TAROT FLOW
@@ -171,15 +197,14 @@ def main():
     )
     application.add_handler(personal_tarot_conv)
 
-    # Horoscope handlers (from horoscope.py)
     register_horoscope_handlers(application)
 
     application.job_queue.run_daily(
         callback=daily_tarot_job,
-        time=time(hour=15, minute=0),
+        time=time(hour=9, minute=0),
     )
 
-    # Start polling
+    # Start bot
     application.run_polling()
 
 
