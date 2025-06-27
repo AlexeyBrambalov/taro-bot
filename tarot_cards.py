@@ -383,4 +383,52 @@ tarot_cards = [
         "meaning": "Победа, признание и успех после усилий.",
         "image_path": "images/victory.jpg",
     },
+    {
+        "name": "Четвёрка Кубков (Four of Cups – Blended Pleasure)",
+        "category": "Масть Кубков",
+        "meaning": "Эмоциональное недовольство, необходимость переоценки желаний.",
+        "image_path": "images/blended-pleasure.jpg",
+    },
+    {
+        "name": "Девятка Мечей (Nine of Swords – Despair and Cruelty)",
+        "category": "Масть Мечей",
+        "meaning": "Беспокойство, угрызения совести и внутренние страдания.",
+        "image_path": "images/despair-and-cruelty.jpg",
+    },
+    {
+        "name": "Король Кубков (King of Cups)",
+        "category": "Масть Кубков",
+        "meaning": "Эмоциональная зрелость, сочувствие и контроль над чувствами.",
+        "image_path": "images/king-of-cups.jpg",
+    },
+    {
+        "name": "Десятка Дисков (Ten of Disks – Perfect Success)",
+        "category": "Масть Пентаклей",
+        "meaning": "Материальное изобилие, устойчивость и семейные ценности.",
+        "image_path": "images/perfect-success.jpg",
+    },
+    {
+        "name": "Принцесса Кубков (Princess of Cups)",
+        "category": "Масть Кубков",
+        "meaning": "Творческое вдохновение, интуиция и чувствительность.",
+        "image_path": "images/princess-of-cups.jpg",
+    },
+    {
+        "name": "Принцесса Мечей (Princess of Swords)",
+        "category": "Масть Мечей",
+        "meaning": "Интеллектуальное любопытство, наблюдательность и стремление к истине.",
+        "image_path": "images/princess-of-swords.jpg",
+    },
+    {
+        "name": "Принцесса Жезлов (Princess of Wands)",
+        "category": "Масть Жезлов",
+        "meaning": "Энергия новых начинаний, креативность и страсть к самовыражению.",
+        "image_path": "images/princess-of-wands.jpg",
+    },
+    {
+        "name": "Королева Кубков (Queen of Cups)",
+        "category": "Масть Кубков",
+        "meaning": "Сострадание, глубокая эмоциональность и развитая интуиция.",
+        "image_path": "images/queen-of-cups.jpg",
+    },
 ]
