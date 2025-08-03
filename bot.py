@@ -41,15 +41,22 @@ async def tarot(update, context, name=None, gender=None):
         prompt = generate_tarot_prompt(card["name"], name, gender)
         model = genai.GenerativeModel("gemini-2.0-flash-001")
         response = await model.generate_content_async(prompt)
-        poetic_text = sanitize_markdown(response.text.strip())
+        poetic_text = response.text.strip()
 
         with open(card["image_path"], "rb") as image_file:
+            caption = (
+                f"{card['name']}\n"
+                f"{card['category'].capitalize()} — {card['meaning']}\n\n"
+                f"«{poetic_text}»"
+            )
+
             await context.bot.send_photo(
                 chat_id=update.effective_chat.id,
                 photo=image_file,
-                caption=poetic_text,
-                parse_mode=ParseMode.MARKDOWN,
+                caption=caption,
+                parse_mode=None,  # disable markdown to preserve symbols
             )
+
     except FileNotFoundError:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
