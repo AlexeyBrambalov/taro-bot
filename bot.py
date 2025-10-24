@@ -10,6 +10,7 @@ from tarot_cards import tarot_cards
 from ai_prompt import generate_tarot_prompt
 from datetime import time
 import psycopg2
+import pytz
 
 # Load environment variables
 load_dotenv()
@@ -90,9 +91,11 @@ def get_subscribers():
     try:
         with psycopg2.connect(DATABASE_URL) as connection:
             with connection.cursor() as cursor:
-                cursor.execute("SELECT user_id FROM users WHERE subscribed = TRUE")
+                cursor.execute(
+                    "SELECT user_id, timezone FROM users WHERE subscribed = TRUE"
+                )
                 rows = cursor.fetchall()
-                return [row[0] for row in rows]
+                return [{"user_id": row[0], "timezone": row[1]} for row in rows]
     except Exception as e:
         logger.error(f"Database error (get_subscribers): {e}")
         return []
@@ -176,11 +179,14 @@ def main():
     application.add_handler(CommandHandler("unsubscribe", unsubscribe))
     application.add_handler(CommandHandler("tarot", tarot))  # manual tarot draw
 
-    # Schedule daily tarot at 09:00
-    application.job_queue.run_daily(
-        callback=daily_tarot_job,
-        time=time(hour=9, minute=0),
-    )
+    # Schedule daily tarot at 10:00 Lodnon
+    subscribers = get_subscribers()
+    for user in subscribers:
+        tz = pytz.timezone(user["timezone"])
+        application.job_queue.run_daily(
+            callback=daily_tarot_job,
+            time=time(hour=10, minute=0, tzinfo=tz),
+        )
 
     application.run_polling()
 
