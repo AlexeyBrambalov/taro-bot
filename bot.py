@@ -3,7 +3,8 @@ import logging
 import random
 import asyncio
 from dotenv import load_dotenv
-from datetime import time
+from datetime import time, datetime
+from types import SimpleNamespace
 
 from telegram.ext import Application, CallbackContext, CommandHandler
 import google.generativeai as genai
@@ -159,13 +160,15 @@ async def daily_tarot_job(context: CallbackContext):
 def main():
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
-    # Register commands
+    # Commands
     application.add_handler(CommandHandler("subscribe", subscribe))
     application.add_handler(CommandHandler("unsubscribe", unsubscribe))
     application.add_handler(CommandHandler("tarot", tarot))
 
     # Schedule per timezone
     tz_users = get_subscribers_by_timezone()
+    now_utc = datetime.now(pytz.UTC)
+
     for tz_name in tz_users:
         tz = pytz.timezone(tz_name)
         application.job_queue.run_daily(
@@ -175,6 +178,20 @@ def main():
             name=f"daily_tarot_{tz_name}",
         )
         logger.info(f"Daily 10:00 job scheduled for {tz_name}")
+
+        # --- Run immediately if local time is already past 10:00 ---
+        local_time = now_utc.astimezone(tz)
+        if local_time.hour >= 10:
+            logger.info(f"Running missed tarot for {tz_name} immediately ⏱️")
+            asyncio.get_event_loop().create_task(
+                daily_tarot_job(
+                    CallbackContext.from_update(
+                        None,
+                        application=application,
+                        job=SimpleNamespace(data={"timezone": tz_name}),
+                    )
+                )
+            )
 
     logger.info("Bot started ✅✨")
     application.run_polling()
