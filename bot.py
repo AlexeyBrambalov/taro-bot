@@ -160,7 +160,7 @@ async def daily_tarot_job(context: CallbackContext):
 def main():
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
-    # Commands
+    # Register commands
     application.add_handler(CommandHandler("subscribe", subscribe))
     application.add_handler(CommandHandler("unsubscribe", unsubscribe))
     application.add_handler(CommandHandler("tarot", tarot))
@@ -179,19 +179,23 @@ def main():
         )
         logger.info(f"Daily 10:00 job scheduled for {tz_name}")
 
-        # --- Run immediately if local time is already past 10:00 ---
+        # If local time already past 10:00, run the job immediately once.
         local_time = now_utc.astimezone(tz)
         if local_time.hour >= 10:
             logger.info(f"Running missed tarot for {tz_name} immediately ⏱️")
-            asyncio.get_event_loop().create_task(
-                daily_tarot_job(
-                    CallbackContext.from_update(
-                        None,
-                        application=application,
-                        job=SimpleNamespace(data={"timezone": tz_name}),
-                    )
-                )
+
+            # create a minimal context object accepted by daily_tarot_job:
+            fake_context = SimpleNamespace(
+                job=SimpleNamespace(data={"timezone": tz_name}),
+                bot=application.bot,
             )
+
+            # Run now (synchronously) — this will block until the job finishes.
+            # Using asyncio.run ensures a fresh event loop is created for the coroutine.
+            try:
+                asyncio.run(daily_tarot_job(fake_context))
+            except Exception as e:
+                logger.error(f"Error running missed tarot for {tz_name}: {e}")
 
     logger.info("Bot started ✅✨")
     application.run_polling()
