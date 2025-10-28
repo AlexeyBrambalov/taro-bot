@@ -36,6 +36,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger("TarotBot")
 
+def get_utc_hour_for_timezone(tz_name, local_hour=10):
+    """
+    Calculate UTC hour for a given timezone's local hour.
+    """
+    try:
+        tz = pytz.timezone(tz_name)
+        # Create a naive datetime for today at the target local hour
+        now = datetime.now()
+        local_time = tz.localize(
+            datetime(now.year, now.month, now.day, local_hour, 0, 0)
+        )
+        # Convert to UTC
+        utc_time = local_time.astimezone(pytz.UTC)
+        return utc_time.hour
+    except Exception as e:
+        logger.warning(
+            f"Error calculating UTC hour for {tz_name}, defaulting to {local_hour}: {e}"
+        )
+        return local_hour
+
 
 # --- DB Helpers ---
 def subscribe_user(user):
@@ -165,37 +185,21 @@ def main():
     application.add_handler(CommandHandler("unsubscribe", unsubscribe))
     application.add_handler(CommandHandler("tarot", tarot))
 
-    # Schedule per timezone
+    # Schedule per timezone at their local 10:00 AM (converted to UTC)
     tz_users = get_subscribers_by_timezone()
-    now_utc = datetime.now(pytz.UTC)
 
     for tz_name in tz_users:
-        tz = pytz.timezone(tz_name)
+        utc_hour = get_utc_hour_for_timezone(tz_name, local_hour=10)
+
+        logger.info(f"Scheduling {tz_name} at {utc_hour}:00 UTC (10:00 local)")
+
+        # Schedule daily job at the calculated UTC hour
         application.job_queue.run_daily(
             daily_tarot_job,
-            time=time(hour=10, minute=0, tzinfo=tz),
+            time=time(hour=utc_hour, minute=0, tzinfo=pytz.UTC),
             data={"timezone": tz_name},
             name=f"daily_tarot_{tz_name}",
         )
-        logger.info(f"Daily 10:00 job scheduled for {tz_name}")
-
-        # If local time already past 10:00, run the job immediately once.
-        local_time = now_utc.astimezone(tz)
-        if local_time.hour >= 10:
-            logger.info(f"Running missed tarot for {tz_name} immediately ⏱️")
-
-            # create a minimal context object accepted by daily_tarot_job:
-            fake_context = SimpleNamespace(
-                job=SimpleNamespace(data={"timezone": tz_name}),
-                bot=application.bot,
-            )
-
-            # Run now (synchronously) — this will block until the job finishes.
-            # Using asyncio.run ensures a fresh event loop is created for the coroutine.
-            try:
-                asyncio.run(daily_tarot_job(fake_context))
-            except Exception as e:
-                logger.error(f"Error running missed tarot for {tz_name}: {e}")
 
     logger.info("Bot started ✅✨")
     application.run_polling()
