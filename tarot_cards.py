@@ -300,9 +300,9 @@ tarot_cards = [
         "image_path": "images/perfected-work.jpg",
     },
     {
-        "name": "Восьмёрка Кубков (Eight of Cups – Earned Success)",
-        "category": "Масть Кубков",
-        "meaning": "Поиск глубинного смысла, уход от пустых достижений.",
+        "name": "Шестёрка Мечей (Six of Swords – Earned Success)",
+        "category": "Масть Мечей",
+        "meaning": "Переход через трудности, движение к лучшему, путь к внутреннему покою.",
         "image_path": "images/earned-success.jpg",
     },
     {
