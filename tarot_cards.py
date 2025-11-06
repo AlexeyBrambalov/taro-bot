@@ -431,4 +431,16 @@ tarot_cards = [
         "meaning": "Сострадание, глубокая эмоциональность и развитая интуиция.",
         "image_path": "images/queen-of-cups.jpg",
     },
+    {
+        "name": "Принцесса Пентаклей (Princess of Pentacles)",
+        "category": "Масть Пентаклей",
+        "meaning": "Практичность, стремление к знаниям и уверенные шаги к материальной стабильности.",
+        "image_path": "images/princess-of-pentacles.jpg",
+    },
+    {
+        "name": "Туз Кубков (Ace of Cups)",
+        "category": "Масть Кубков",
+        "meaning": "Начало новых чувств, любовь, вдохновение и духовное обновление.",
+        "image_path": "images/ace-of-cups.jpg",
+    },
 ]
