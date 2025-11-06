@@ -312,8 +312,8 @@ tarot_cards = [
         "image_path": "images/wealth.jpg",
     },
     {
-        "name": "Десятка Мечей (Ten of Swords – Oppression)",
-        "category": "Масть Мечей",
+        "name": "Десятка Жезлов (Ten of Wands – Oppression)",
+        "category": "Масть Жезлов",
         "meaning": "Крайнее истощение, завершение болезненного цикла.",
         "image_path": "images/oppression.jpg",
     },
@@ -342,7 +342,7 @@ tarot_cards = [
         "image_path": "images/material-success.jpg",
     },
     {
-        "name": "Девятка Жезлов (Nine of Wands – Established Strength)",
+        "name": "Тройка Жезлов (Three of Wands – Established Strength)",
         "category": "Масть Жезлов",
         "meaning": "Настойчивость и сила воли в преодолении трудностей.",
         "image_path": "images/established-strength.jpg",
@@ -442,5 +442,11 @@ tarot_cards = [
         "category": "Масть Кубков",
         "meaning": "Начало новых чувств, любовь, вдохновение и духовное обновление.",
         "image_path": "images/ace-of-cups.jpg",
+    },
+    {
+        "name": "Четвёрка Пентаклей (Four of Pentacles – Perfect Work)",
+        "category": "Масть Пентаклей",
+        "meaning": "Стабильность, упорный труд, достижение надёжного фундамента и мастерство в деле.",
+        "image_path": "images/perfect-work.jpg",
     },
 ]
