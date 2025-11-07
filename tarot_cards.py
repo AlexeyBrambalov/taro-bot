@@ -42,10 +42,16 @@ tarot_cards = [
         "image_path": "images/hierophant.jpg",
     },
     {
+        "name": "Двойка Кубков (Two of Cups – Love)",
+        "category": "Масть Кубков",
+        "meaning": "Партнёрство, союз, взаимная привязанность и гармония в отношениях.",
+        "image_path": "images/love.jpg",
+    },
+    {
         "name": "Влюблённые (The Lovers)",
         "category": "Старшие Арканы",
         "meaning": "Гармония, романтические отношения и союз.",
-        "image_path": "images/love.jpg",
+        "image_path": "images/lovers.jpg",
     },
     {
         "name": "Мир (The World)",
@@ -198,9 +204,9 @@ tarot_cards = [
         "image_path": "images/queen-of-pentacles.jpg",
     },
     {
-        "name": "Мир (Peace)",
-        "category": "Старшие Арканы",
-        "meaning": "Целостность, гармония и завершение пути. Эта карта символизирует достижение внутреннего мира и гармонии, завершение важного этапа жизни.",
+        "name": "Покой (Peace – Двойка Мечей)",
+        "category": "Масть Мечей",
+        "meaning": "Внутренний баланс и тишина после конфликта. Символизирует необходимость сделать выбор, сохраняя спокойствие и доверяя интуиции, а не внешним обстоятельствам.",
         "image_path": "images/peace.jpg",
     },
     {
@@ -294,9 +300,9 @@ tarot_cards = [
         "image_path": "images/material-trouble.jpg",
     },
     {
-        "name": "Четвёрка Пентаклей (Four of Pentacles – Perfected Work)",
-        "category": "Масть Пентаклей",
-        "meaning": "Стабильность, контроль и материальное удержание.",
+        "name": "Четвёрка Жезлов (Four of Wands – Perfected Work)",
+        "category": "Масть Жезлов",
+        "meaning": "Празднование, завершение, гармония и стабильность в доме.",
         "image_path": "images/perfected-work.jpg",
     },
     {
@@ -348,9 +354,9 @@ tarot_cards = [
         "image_path": "images/established-strength.jpg",
     },
     {
-        "name": "Сила (Strength – Great Strength)",
-        "category": "Старшие Арканы",
-        "meaning": "Внутренняя сила, спокойствие и уверенность в себе.",
+        "name": "Девятка Жезлов (Nine of Wands – Great Strength)",
+        "category": "Масть Жезлов",
+        "meaning": "Устойчивость, стойкость и последняя защита своих позиций.",
         "image_path": "images/great-strength.jpg",
     },
     {
@@ -384,6 +390,12 @@ tarot_cards = [
         "image_path": "images/victory.jpg",
     },
     {
+        "name": "Четвёрка Пентаклей (Four of Pentacles)",
+        "category": "Масть Пентаклей",
+        "meaning": "Контроль, стабильность, безопасность и обладание. Карта символизирует как защиту ресурсов, так и страх потери, который может привести к чрезмерному контролю.",
+        "image_path": "images/earthing-power.jpg",
+    },
+    {
         "name": "Четвёрка Кубков (Four of Cups – Blended Pleasure)",
         "category": "Масть Кубков",
         "meaning": "Эмоциональное недовольство, необходимость переоценки желаний.",
@@ -402,9 +414,9 @@ tarot_cards = [
         "image_path": "images/king-of-cups.jpg",
     },
     {
-        "name": "Десятка Дисков (Ten of Disks – Perfect Success)",
-        "category": "Масть Пентаклей",
-        "meaning": "Материальное изобилие, устойчивость и семейные ценности.",
+        "name": "Десятка Кубков (Ten of Cups – Perfected Success)",
+        "category": "Масть Кубков",
+        "meaning": "Эмоциональное удовлетворение, семейное счастье и гармония.",
         "image_path": "images/perfect-success.jpg",
     },
     {
@@ -448,5 +460,11 @@ tarot_cards = [
         "category": "Масть Пентаклей",
         "meaning": "Стабильность, упорный труд, достижение надёжного фундамента и мастерство в деле.",
         "image_path": "images/perfect-work.jpg",
+    },
+    {
+        "name": "Семёрка Пентаклей (Seven of Pentacles - Success Unfulfilled)",
+        "category": "Масть Пентаклей",
+        "meaning": "Оценка прогресса, размышление над результатами и период ожидания. Карта указывает на вложенный труд, но может сигнализировать о задержках или неудовлетворённости текущими достижениями.",
+        "image_path": "images/success-unfulfilled.jpg",
     },
 ]
