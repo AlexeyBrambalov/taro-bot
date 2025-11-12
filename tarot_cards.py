@@ -90,9 +90,9 @@ tarot_cards = [
         "image_path": "images/defeat.jpg",
     },
     {
-        "name": "Восьмёрка Пентаклей (Eight of Pentacles – Material Work)",
+        "name": "Тройка Пентаклей (Three of Pentacles – Collaboration)",
         "category": "Масть Пентаклей",
-        "meaning": "Усердная работа, мастерство и прогресс.",
+        "meaning": "Сотрудничество, мастерство и командная работа.",
         "image_path": "images/material-work.jpg",
     },
     {
@@ -454,12 +454,6 @@ tarot_cards = [
         "category": "Масть Кубков",
         "meaning": "Начало новых чувств, любовь, вдохновение и духовное обновление.",
         "image_path": "images/ace-of-cups.jpg",
-    },
-    {
-        "name": "Четвёрка Пентаклей (Four of Pentacles – Perfect Work)",
-        "category": "Масть Пентаклей",
-        "meaning": "Стабильность, упорный труд, достижение надёжного фундамента и мастерство в деле.",
-        "image_path": "images/perfect-work.jpg",
     },
     {
         "name": "Семёрка Пентаклей (Seven of Pentacles - Success Unfulfilled)",
