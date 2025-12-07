@@ -36,6 +36,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("TarotBot")
 
+
 def get_utc_hour_for_timezone(tz_name, local_hour=10):
     """
     Calculate UTC hour for a given timezone's local hour.
@@ -115,7 +116,7 @@ def get_subscribers_by_timezone():
 # --- Tarot Logic ---
 async def generate_tarot_text(card, name=None, gender=None):
     prompt = generate_tarot_prompt(card["name"], name, gender)
-    model = genai.GenerativeModel("gemini-2.0-flash-001")
+    model = genai.GenerativeModel("gemini-1.5-flash")
     response = await model.generate_content_async(prompt)
     return response.text.strip()
 
