@@ -116,7 +116,7 @@ def get_subscribers_by_timezone():
 # --- Tarot Logic ---
 async def generate_tarot_text(card, name=None, gender=None):
     prompt = generate_tarot_prompt(card["name"], name, gender)
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.5-flash")
     response = await model.generate_content_async(prompt)
     return response.text.strip()
 
